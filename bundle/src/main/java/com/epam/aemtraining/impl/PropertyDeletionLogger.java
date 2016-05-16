@@ -34,19 +34,19 @@ public class PropertyDeletionLogger implements JobConsumer{
             String propertyPath = job.getProperty("path", String.class);
             String[] propertyNames = job.getProperty("names", String[].class);
             for (String name: propertyNames){
-                String path = String.format("var/log/removedProperties/%s/%s", job.getId(), name);
+                String path = String.format("var/log/removedProperties/%s", job.getId());
                 Node node = null;
                 if (rootNode.hasNode(path)){
                     node = rootNode.getNode(path);
                 }else{
                     node = addNode(rootNode, path);
-                    if (node!=null)
-                        node.setPrimaryType("nt:unstructured");
-                    else
+                    if (node!=null){
+                        node.setProperty("path", propertyPath);
+                    }else
                         return JobResult.FAILED;
                 }
                 if (node!=null){
-                    node.setProperty("path", propertyPath);
+                    node.addNode(name).setPrimaryType("nt:unstructured");
                 }else
                     return JobResult.FAILED;
             }
